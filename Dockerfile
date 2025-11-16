@@ -4,6 +4,9 @@ FROM nvidia/cuda:12.1.0-cudnn8-runtime-ubuntu22.04
 ENV DEBIAN_FRONTEND=noninteractive
 ENV PYTHONUNBUFFERED=1
 
+# PyTorch CUDA memory management optimization
+ENV PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
+
 # Set working directory
 WORKDIR /app
 

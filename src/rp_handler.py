@@ -44,12 +44,13 @@ def handler(job):
     Expected input:
     {
         "audio_url": "https://example.com/audio.mp3",
-        "language": "en" (optional),
+        "language": "en" (optional, None for auto-detect),
         "task": "transcribe" or "translate" (optional, default: transcribe),
-        "batch_size": 16 (optional),
-        "chunk_length_s": 30 (optional),
-        "return_timestamps": true/false/"word" (optional)
+        "return_timestamps": true/false/"word" (optional, default: true)
     }
+
+    Note: batch_size and chunk_length_s are no longer supported as they cause
+    memory issues. Whisper handles audio of any length natively and efficiently.
     """
     job_id = job["id"]
     job_input = job["input"]
@@ -70,18 +71,16 @@ def handler(job):
         # Extract parameters
         language = job_input.get("language", None)
         task = job_input.get("task", "transcribe")
-        batch_size = job_input.get("batch_size", 16)
-        chunk_length_s = job_input.get("chunk_length_s", 30)
         return_timestamps = job_input.get("return_timestamps", True)
 
-        # Run prediction
+        # Run prediction using Whisper's native long-form transcription
+        # Note: batch_size and chunk_length_s are ignored as they cause memory issues
+        # Whisper handles audio of any length natively and efficiently
         logger.info("Starting transcription...")
         result = predictor.predict(
             audio_path=audio_path,
             language=language,
             task=task,
-            batch_size=batch_size,
-            chunk_length_s=chunk_length_s,
             return_timestamps=return_timestamps
         )
 

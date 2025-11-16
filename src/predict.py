@@ -24,14 +24,20 @@ class WhisperPredictor:
         logger.info(f"Device: {self.device}")
         logger.info(f"Dtype: {self.torch_dtype}")
 
-        # Load model
+        # Load model with memory optimizations
         self.model = AutoModelForSpeechSeq2Seq.from_pretrained(
             self.model_id,
             torch_dtype=self.torch_dtype,
             low_cpu_mem_usage=True,
-            use_safetensors=True
+            use_safetensors=True,
+            attn_implementation="sdpa",  # Use scaled dot-product attention for better memory efficiency
+            device_map="auto"  # Automatically load to GPU (faster)
         )
-        self.model.to(self.device)
+        # Note: device_map="auto" already moves model to GPU, no need for .to(device)
+
+        # Enable gradient checkpointing for memory efficiency during inference
+        if hasattr(self.model, 'gradient_checkpointing_enable'):
+            self.model.gradient_checkpointing_enable()
 
         # Load processor
         self.processor = AutoProcessor.from_pretrained(self.model_id)
@@ -53,19 +59,15 @@ class WhisperPredictor:
         audio_path: str,
         language: str = None,
         task: str = "transcribe",
-        batch_size: int = 16,
-        chunk_length_s: int = 30,
         return_timestamps: bool = True
     ):
         """
-        Transcribe or translate audio
+        Transcribe or translate audio using Whisper's native long-form transcription
 
         Args:
             audio_path: Path to audio file
             language: Language code (e.g., 'en', 'es', 'fr'). If None, auto-detect
             task: 'transcribe' or 'translate' (to English)
-            batch_size: Batch size for processing
-            chunk_length_s: Chunk length in seconds for long audio
             return_timestamps: True for segment timestamps, 'word' for word timestamps, False for none
 
         Returns:
@@ -74,7 +76,7 @@ class WhisperPredictor:
         logger.info(f"Transcribing: {audio_path}")
         logger.info(f"Language: {language or 'auto-detect'}")
         logger.info(f"Task: {task}")
-        logger.info(f"Batch size: {batch_size}")
+        logger.info(f"Return timestamps: {return_timestamps}")
 
         # Build generation kwargs
         generate_kwargs = {
@@ -85,11 +87,10 @@ class WhisperPredictor:
         # Remove None values
         generate_kwargs = {k: v for k, v in generate_kwargs.items() if v is not None}
 
-        # Run transcription
+        # Run transcription using Whisper's native method (no chunking)
+        # This is much more memory efficient and accurate
         result = self.pipe(
             audio_path,
-            chunk_length_s=chunk_length_s,
-            batch_size=batch_size,
             return_timestamps=return_timestamps,
             generate_kwargs=generate_kwargs
         )
@@ -104,5 +105,8 @@ class WhisperPredictor:
             output["chunks"] = result["chunks"]
 
         logger.info(f"Transcription length: {len(result['text'])} characters")
+
+        # Clear GPU cache after processing
+        torch.cuda.empty_cache()
 
         return output
