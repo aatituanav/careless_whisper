@@ -197,4 +197,4 @@ Para problemas o preguntas:
 1. **Optimizar rendimiento**: Experimenta con batch sizes y chunk lengths
 2. **Agregar features**: Word-level timestamps, speaker diarization, etc.
 3. **Monitorear costos**: Revisa el uso de GPU en RunPod Console
-4. **Escalar**: Configura auto-scaling en RunPod para manejar picos de tráfico
+4. **Escalar**: Configura auto-scaling en RunPod para manejar picos de tráfico.
