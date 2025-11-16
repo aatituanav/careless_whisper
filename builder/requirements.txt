@@ -1,0 +1,21 @@
+# PyTorch with CUDA support
+--extra-index-url https://download.pytorch.org/whl/cu121
+torch>=2.1.0
+torchaudio>=2.1.0
+
+# Transformers and Hugging Face
+transformers>=4.35.0
+accelerate>=0.24.0
+datasets>=2.14.0
+
+# Audio processing
+ffmpeg-python>=0.2.0
+librosa>=0.10.0
+soundfile>=0.12.0
+
+# RunPod
+runpod>=1.5.0
+
+# Utilities
+numpy>=1.24.0
+requests>=2.31.0

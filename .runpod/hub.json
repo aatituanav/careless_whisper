@@ -1,0 +1,22 @@
+{
+    "title": "Whisper Large V3 Worker",
+    "description": "Automatic Speech Recognition using OpenAI's Whisper Large V3 model with Hugging Face Transformers",
+    "type": "serverless",
+    "category": "audio",
+    "iconUrl": "https://huggingface.co/front/assets/huggingface_logo-noborder.svg",
+    "tags": [
+        "speech-to-text",
+        "transcription",
+        "whisper",
+        "audio",
+        "automatic-speech-recognition",
+        "openai",
+        "whisper-large-v3"
+    ],
+    "config": {
+        "runsOn": "GPU",
+        "containerDiskInGb": 25,
+        "gpuIds": "ADA_24",
+        "allowedCudaVersions": ["12.7", "12.6", "12.5", "12.4", "12.3", "12.1"]
+    }
+}
